@@ -61,5 +61,5 @@ if __name__ == "__main__":
         wildcards = config.get(section, "wildcards").split(';')
         flags     = config.get(section, "flags").split(';')
         create_index(section, tagpaths, wildcards)
-        invoke_ctags(ctags_exe, ["-e"] + flags + [ "-o" ] + [ section + ".TAGS" ] + [ "-L"] + [ index_filename(section) ])
+        invoke_ctags(ctags_exe, flags + [ "-o" ] + [ section + ".TAGS" ] + [ "-L"] + [ index_filename(section) ])
     sys.exit(0)
