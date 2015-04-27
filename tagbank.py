@@ -1,4 +1,4 @@
-
+#
 import sys
 import getopt
 import os
@@ -12,7 +12,7 @@ import ConfigParser
 # [Carmageddon]
 # wildcards=*.cpp;*.c;*.h;*.inl
 # tagpaths=c:\Dev\LoveBucket\Development\Beelzebub\SOURCE;c:\Dev\LoveBucket\Development\Build\Source
-# flags=--c++-kinds=cfnstunedm;--c-kinds=cfnstunedm;--extra=+q 
+# flags=--c++-kinds=cfnstunedm;--c-kinds=cfnstunedm;--extra=+q
 
 ConfigFile = "tagbank.conf"
 
@@ -32,7 +32,7 @@ def visit_dir(arg, d, filelist):
         if name[0] == ".":
             continue
         path = os.path.join(d, name)
-        if not os.path.isdir(path) and os.path.isfile(path) and is_one_of(path, arg.filemasks):  
+        if not os.path.isdir(path) and os.path.isfile(path) and is_one_of(path, arg.filemasks):
             arg.fileobj.write(path + '\n')
 
 def enumerate_dir(arg, d, filelist):
@@ -45,12 +45,12 @@ def create_index(name, dirs, filetypes):
     index_file = open(index_filename(name), "w")
     for d in dirs:
         os.path.walk(d, enumerate_dir, DirWalkArgs(index_file, filetypes))
-    
+
 def invoke_ctags(prog, flags):
     args = [ prog ] + flags
     subprocess.call(args)
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     config = ConfigParser.RawConfigParser()
     config.read(ConfigFile)
     ctags_exe = config.get("Global", "ctags")
