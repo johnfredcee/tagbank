@@ -1,0 +1,29 @@
+
+Command line language with a conversational interactive style a la git
+* Cli Interaction
+** tagdb add project <root> ...
+*** Add a new project to the project database
+** tagdb rm project
+**** Remove a project from the database
+** tagdb add root <project> <root>
+*** Remove a directory from the list of project directories
+** tagdb rm root <project> <root>
+*** Show information about a project
+** tagdb show <project>
+** tagdb show all
+*** Update tag info associated with project
+** tagdb update <project>
+*** Project monitioring
+** tagdb monitor <project> 
+*** Start real-time updating of project 
+** tagdb ignore <project>
+*** End realtime monitoring of project
+* Protocol
+** Transmit
+*** Info project tag
+*** Cmd <as command line>
+** Reply
+*** None
+*** file expression/location <field:<value>>...
+*** True/False (for command)
+* Database
