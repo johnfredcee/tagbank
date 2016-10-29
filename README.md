@@ -9,6 +9,7 @@ python tagbank.py and the indexes are updated. The tag files are named
 after the headings in the .conf file, so the example will generate tag
 files named UE4Editor.TAGS, UE4Developer.TAGS and UE4Runtime.TAGS
 
-Dependencies:
+Dependencies: (installable with pip)
 
 * python-ctags3
+* watchdog
