@@ -1,10 +1,10 @@
-#
+
 import sys
 import getopt
 import os
 import os.path
 import subprocess
-import ConfigParser
+import configparser
 
 # Example config
 # [Global]
@@ -16,50 +16,36 @@ import ConfigParser
 
 ConfigFile = "tagbank.conf"
 
-class DirWalkArgs:
-    def __init__(self, fileobj, filemasks):
-        self.fileobj = fileobj
-        self.filemasks = filemasks
-
 def is_one_of(file_name, filemasks):
-    return  "*"+os.path.splitext(file_name)[1] in filemasks
-
-# visit a directory and add all files to the list
-def visit_dir(arg, d, filelist):
-#   print "Visiting d " + d
-    for name in filelist:
-        # ignore the hiding file and directory
-        if name[0] == ".":
-            continue
-        path = os.path.join(d, name)
-        if not os.path.isdir(path) and os.path.isfile(path) and is_one_of(path, arg.filemasks):
-            arg.fileobj.write(path + '\n')
-
-def enumerate_dir(arg, d, filelist):
-    visit_dir(arg, d, filelist)
+	return	"*"+os.path.splitext(file_name)[1] in filemasks
 
 def index_filename(name):
-    return name + ".files"
+	return name + ".files"
 
 def create_index(name, dirs, filetypes):
-    index_file = open(index_filename(name), "w")
-    for d in dirs:
-        os.path.walk(d, enumerate_dir, DirWalkArgs(index_file, filetypes))
+	index_file = open(index_filename(name), "w")
+	for d in dirs:
+		for root, dirs, files in os.walk(d):
+			for name in files:
+				fullname = os.path.join(root, name)
+				if is_one_of(fullname, filetypes):
+					index_file.write(fullname + '\n')
+	index_file.close()
 
 def invoke_ctags(prog, flags):
-    args = [ prog ] + flags
-    subprocess.call(args)
+	args = [ prog ] + flags
+	subprocess.call(args)
 
 if __name__ == "__main__":
-    config = ConfigParser.RawConfigParser()
-    config.read(ConfigFile)
-    ctags_exe = config.get("Global", "ctags")
-    for section in config.sections():
-        if (section == "Global"):
-            continue
-        tagpaths  = config.get(section, "tagpaths").split(';')
-        wildcards = config.get(section, "wildcards").split(';')
-        flags     = config.get(section, "flags").split(';')
-        create_index(section, tagpaths, wildcards)
-        invoke_ctags(ctags_exe, flags + [ "-o" ] + [ section + ".TAGS" ] + [ "-L"] + [ index_filename(section) ])
-    sys.exit(0)
+	config = configparser.ConfigParser()
+	config.read(ConfigFile)
+	ctags_exe = config.get("Global", "ctags")
+	for section in config.sections():
+		if (section == "Global"):
+			continue
+		tagpaths  = config.get(section, "tagpaths").split(';')
+		wildcards = config.get(section, "wildcards").split(';')
+		flags	  = config.get(section, "flags").split(';')
+		create_index(section, tagpaths, wildcards)
+		invoke_ctags(ctags_exe, flags + [ "-o" ] + [ section + ".TAGS" ] + [ "-L"] + [ index_filename(section) ])
+		sys.exit(0)
