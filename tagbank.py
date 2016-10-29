@@ -1,3 +1,4 @@
+# -*- mode: Python; tab-width: 4 -*-
 
 import sys
 import getopt
@@ -22,9 +23,9 @@ def is_one_of(file_name, filemasks):
 def index_filename(name):
 	return name + ".files"
 
-def create_index(name, dirs, filetypes):
+def create_index(name, projectdirs, filetypes):
 	index_file = open(index_filename(name), "w")
-	for d in dirs:
+	for d in projectdirs:
 		for root, dirs, files in os.walk(d):
 			for name in files:
 				fullname = os.path.join(root, name)
