@@ -36,6 +36,9 @@ def create_index(tablename, projectdirs, filetypes):
 		        if is_one_of(fullname, filetypes):
 			        insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 0);" % fullname
 			        cursor.execute(insert_cmd)
+            fullname = d
+		    insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 1);" % fullname
+		    cursor.execute(insert_cmd)
 	conn.commit()
 	cursor.close()
 
