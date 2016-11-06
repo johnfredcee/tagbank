@@ -1,6 +1,7 @@
 # -*- mode: Python; tab-width: 4 -*-
 #
-# Transform an euberant ctags file to a sqlite database
+# Walk the root directory of a project and create a table containing details
+# of the files and directories it contains
 #
 import sys
 import ctags
@@ -19,32 +20,34 @@ def is_one_of(file_name, filemasks):
 def create_index(tablename, projectdirs, filetypes):
 	conn = sqlite3.connect("projects.db")
 	cursor = conn.cursor()
+	# remove the table if it already exists - we are going to regenerate it
 	drop_cmd = "DROP TABLE IF EXISTS " + tablename + ";"
 	cursor.execute(drop_cmd)
+	# recreate table
 	create_cmd = "CREATE TABLE " + tablename + "(path TEXT, pathtype INTEGER);"
 	cursor.execute(create_cmd)
 	for d in projectdirs:
-	    for root, dirs, files in os.walk(d):
-		    # directories
-		    for name in dirs:
-		        fullname = os.path.join(root,name)
-		        insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 1);" % fullname
-		        cursor.execute(insert_cmd)
-		        # files
-		    for name in files:
-		        fullname = os.path.join(root, name)
-		        if is_one_of(fullname, filetypes):
-			        insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 0);" % fullname
-			        cursor.execute(insert_cmd)
-            fullname = d
-		    insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 1);" % fullname
-		    cursor.execute(insert_cmd)
+		fullname = d
+		insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 1);" % fullname
+		cursor.execute(insert_cmd)
+		for root, dirs, files in os.walk(d):
+			# directories
+			for name in dirs:
+				fullname = os.path.join(root,name)
+				insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 1);" % fullname
+				cursor.execute(insert_cmd)
+				# files
+			for name in files:
+				fullname = os.path.join(root, name)
+				if is_one_of(fullname, filetypes):
+					insert_cmd = "INSERT INTO " + tablename + "(path, pathtype) VALUES(\"%s\", 0);" % fullname
+					cursor.execute(insert_cmd)
 	conn.commit()
 	cursor.close()
 
 def parse_tag_line(line):
 	if line[0] == '!':
-	    return None # not a tag line
+		return None # not a tag line
 	fields = line.split('\t')
 	tag = fields[0]
 	path = fields[1]
@@ -52,9 +55,9 @@ def parse_tag_line(line):
 	fields = fields[3:]
 	tagfields = {}
 	for field in fields:
-	    if ':' in field:
-		    (name, value) = field.split(":")
-		    tagfields[name] = value
+		if ':' in field:
+			(name, value) = field.split(":")
+			tagfields[name] = value
 	else:
 		tagfields["kind"] = field
 	return ( tag, path, address, tagfields )
@@ -62,10 +65,10 @@ def parse_tag_line(line):
 def memberof(tagfields):
 	fields = [ "class", "struct", "union", "enum", "function" ]
 	for field in fields:
-	    if field in tagfields:
-		    return tagfields[field]
-	    else:
-		    return None
+		if field in tagfields:
+			return tagfields[field]
+		else:
+			return None
 
 # # todo needs to run in the root directory of the project
 # def invoke_ctags(prog, flags, project):
@@ -110,8 +113,8 @@ if __name__ == "__main__":
 	config.read(ConfigFile)
 	ctags_exe = config.get("Global", "ctags")
 	for section in config.sections():
-	    if (section == "Global"):
-		    continue
+		if (section == "Global"):
+			continue
 	tagpaths  = config.get(section, "tagpaths").split(';')
 	wildcards = config.get(section, "wildcards").split(';')
 	flags	  = config.get(section, "flags").split(';')
